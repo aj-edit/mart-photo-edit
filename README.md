@@ -33,3 +33,11 @@ Upload the complete `assets` folder with:
 - rider4xr-wide-promo.png
 
 Do not upload only HTML/CSS/JS if you want images to show.
+
+
+## Multi Upload + Paste Added
+- File input supports multiple image selection.
+- Drag and drop supports multiple images.
+- Ctrl+V paste image from clipboard supported.
+- Uploaded photos appear in a queue/list.
+- Click any photo to select and edit/process it.

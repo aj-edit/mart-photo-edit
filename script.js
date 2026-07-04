@@ -8,19 +8,70 @@ const zoom=$("zoom"),brushSize=$("brushSize"),zv=$("zv"),bv=$("bv"),br=$("br"),c
 const enh=$("enh"),shadow=$("shadow"),gridOn=$("gridOn");
 const rl=$("rl"),rr=$("rr"),flip=$("flip"),center=$("center"),undo=$("undo"),redo=$("redo"),clear=$("clear"),reset=$("reset");
 let srcImg=null,cutImg=null,finalBlob=null,selected=null,tool="move",shape="brush",down=false,last=null,stroke=null,boxStart=null,previewBox=null;
+let fileQueue=[], activeIndex=-1;
 let st={rot:0,flip:false,zoom:1,x:0,y:0,brush:35};let edits=[],redoStack=[];
 
 pick.onclick=()=>file.click();
-file.onchange=()=>loadFile(file.files[0]);
+file.onchange=()=>addFiles(file.files);
 const drop=document.getElementById("drop");
 drop.ondragover=e=>{e.preventDefault()};
-drop.ondrop=e=>{e.preventDefault();loadFile(e.dataTransfer.files[0])};
+drop.ondrop=e=>{e.preventDefault();addFiles(e.dataTransfer.files)};
 
 function setStatus(t,p){status.textContent=t;if(p!=null)fill.style.width=p+"%"}
 function setCanvasSize(){final.width=Math.max(50,Math.min(2000,parseInt(outW.value||400)));final.height=Math.max(50,Math.min(2000,parseInt(outH.value||400)))}
 function white(){ectx.fillStyle="#fff";ectx.fillRect(0,0,600,600);setCanvasSize();fctx.fillStyle="#fff";fctx.fillRect(0,0,final.width,final.height)}
 function enable(v){[rl,rr,flip,center,zoom,brushSize,br,co,sa,sh,undo,redo,clear,reset].forEach(x=>x.disabled=!v)}
-async function loadFile(f){if(!f||!f.type.startsWith("image/"))return alert("Image select karo");selected=f;srcImg=await imgFrom(f);cutImg=null;edits=[];redoStack=[];finalBlob=null;enable(false);download.disabled=true;orig.src=URL.createObjectURL(f);orig.style.display="block";fname.value=f.name.replace(/\.[^/.]+$/,"").replace(/[^a-zA-Z0-9-_ ]/g,"")||"product-photo";process.disabled=false;white();setStatus("Photo ready hai. Remove BG optional hai.",5)}
+
+function addFiles(fileList){
+  const files=[...fileList].filter(f=>f && f.type && f.type.startsWith("image/"));
+  if(!files.length) return alert("Image files select/paste karo");
+  fileQueue.push(...files);
+  renderQueue();
+  if(activeIndex===-1) selectQueueItem(0);
+  setStatus(files.length+" photo add ho gayi. Kisi bhi photo par click karke edit karo.",8);
+}
+
+function renderQueue(){
+  const q=document.getElementById("queueList");
+  if(!q) return;
+  q.innerHTML="";
+  fileQueue.forEach((f,i)=>{
+    const item=document.createElement("div");
+    item.className="queueItem"+(i===activeIndex?" active":"");
+    item.onclick=()=>selectQueueItem(i);
+    const img=document.createElement("img");
+    img.src=URL.createObjectURL(f);
+    const name=document.createElement("small");
+    name.textContent=(i+1)+". "+f.name;
+    item.appendChild(img);
+    item.appendChild(name);
+    q.appendChild(item);
+  });
+}
+
+function selectQueueItem(i){
+  if(i<0 || i>=fileQueue.length) return;
+  activeIndex=i;
+  renderQueue();
+  loadFile(fileQueue[i]);
+}
+
+window.addEventListener("paste",(e)=>{
+  const items=e.clipboardData && e.clipboardData.items ? [...e.clipboardData.items] : [];
+  const files=[];
+  for(const item of items){
+    if(item.type && item.type.startsWith("image/")){
+      const f=item.getAsFile();
+      if(f) files.push(new File([f], "pasted-photo-"+Date.now()+".png", {type:f.type}));
+    }
+  }
+  if(files.length){
+    e.preventDefault();
+    addFiles(files);
+  }
+});
+
+async function loadFile(f){if(!f||!f.type.startsWith("image/"))return alert("Image select karo");selected=f;srcImg=await imgFrom(f);cutImg=null;edits=[];redoStack=[];finalBlob=null;enable(false);download.disabled=true;orig.src=URL.createObjectURL(f);orig.style.display="block";fname.value=f.name.replace(/\.[^/.]+$/,"").replace(/[^a-zA-Z0-9-_ ]/g,"")||"product-photo";process.disabled=false;white();setStatus("Photo ready hai. Remove BG optional hai. Ctrl+V se photo paste bhi kar sakte ho.",5)}
 async function safeRemoveBackground(fileObj){const configs=[{debug:false,publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.5.0/dist/",model:"medium",device:"gpu",output:{format:"image/png",quality:.95},progress:(k,c,t)=>setStatus("AI background remove ho raha hai...",t?Math.min(75,15+Math.round(c/t*60)):35)},{debug:false,publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.5.0/dist/",model:"small",device:"cpu",output:{format:"image/png",quality:.92},progress:(k,c,t)=>setStatus("Fallback AI mode chal raha hai...",t?Math.min(75,15+Math.round(c/t*60)):35)},{debug:false,publicPath:"https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@1.5.0/dist/",model:"small",device:"cpu",output:{format:"image/png",quality:.92},progress:(k,c,t)=>setStatus("CDN fallback AI mode chal raha hai...",t?Math.min(75,15+Math.round(c/t*60)):35)}];let lastError=null;for(const cfg of configs){try{return await removeBackground(fileObj,cfg)}catch(e){console.warn("AI config failed",e);lastError=e}}throw lastError||new Error("Background removal failed")}
 process.onclick=async()=>{if(!selected)return;try{process.disabled=true;setCanvasSize();resetAll();edits=[];redoStack=[];download.disabled=true;if(removeBgOption.checked){setStatus("AI model load ho raha hai...",15);let blob=await safeRemoveBackground(selected);cutImg=await imgFrom(blob);setStatus("Background removed. Editor ready.",90)}else{setStatus("Direct edit mode. Background remove skip kiya.",50);cutImg=srcImg}enable(true);setTool("move");setShape("brush");await render();setStatus("Done. Edit/enhance karke download karo.",100)}catch(e){console.error(e);alert("Process fail hua. AI fail ho to AI Background Remove OFF karke direct edit try karo.");setStatus("Error. Remove BG OFF karke direct edit kar sakte ho.",0)}finally{process.disabled=false}};
 function imgFrom(blob){return new Promise((res,rej)=>{let im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=URL.createObjectURL(blob)})}
