@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Product Photo Editor | Rider4XR</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app">
+
+<section class="hero">
+  <div class="heroText">
+    <p class="badge">Founder of Rider4XR</p>
+    <div class="brandLine">
+      <img class="brandLogoImg" src="assets/rider4xr-app.png" onerror="this.style.display='none'" alt="Rider4XR Logo">
+      <div>
+        <h1>Product Photo Editor</h1>
+        <p>Optional AI Background Remove • Direct Edit • Custom Resize • Custom KB • Enhance</p>
+      </div>
+    </div>
+    <div class="links">
+      <a href="https://wa.me/919929562585" target="_blank">WhatsApp</a>
+      <a href="tel:+919929562585">Call</a>
+      <a href="https://www.instagram.com/aj__editz_2.0?igsh=MWpsNDJ4eHZiOWFxMg==" target="_blank">Instagram</a>
+      <a href="https://rider4xr.in" target="_blank">Rider4XR</a>
+    </div>
+  </div>
+  <div class="comingSoon">
+    <img src="assets/rider4xr-app.png" onerror="this.style.display='none'" alt="Rider4XR App">
+    <b>Rider4XR App</b>
+    <span>Coming Soon</span>
+  </div>
+</section>
+
+<section class="founderSocial">
+  <div class="founderPhotoWrap">
+    <img src="assets/founder-profile.png" alt="Ajay Saini Profile" onerror="this.style.display='none'">
+    <div>
+      <h2>Ajay Saini</h2>
+      <p>Founder of Rider4XR</p>
+      <strong>@aj__editz_2.0</strong>
+    </div>
+  </div>
+
+  <div class="socialButtons">
+    <a class="socialBtn whatsappBtn" href="https://wa.me/919929562585" target="_blank">
+      <span>🟢</span>
+      <b>WhatsApp</b>
+      <small>+91 9929562585</small>
+    </a>
+
+    <a class="socialBtn facebookBtn" href="https://www.facebook.com/" target="_blank">
+      <span>🔵</span>
+      <b>Facebook</b>
+      <small>Add your Facebook link</small>
+    </a>
+
+    <a class="socialBtn instagramBtn" href="https://www.instagram.com/aj__editz_2.0?igsh=MWpsNDJ4eHZiOWFxMg==" target="_blank">
+      <span>🟣</span>
+      <b>Instagram</b>
+      <small>@aj__editz_2.0</small>
+    </a>
+  </div>
+</section>
+
+
+
+<section class="topBanner">
+  <img src="assets/editor-banner.png" onerror="this.style.display='none'" alt="Promotion Banner">
+  <div>
+    <h2>Professional Product Photo Editor</h2>
+    <p>Yahan tum apna custom banner laga sakte ho: assets/editor-banner.png replace kar dena.</p>
+  </div>
+</section>
+
+<section class="card upload" id="drop">
+  <input id="file" type="file" accept="image/*" multiple hidden>
+  <button id="pick">📷 Photo Select Karo</button>
+  <p>Multiple upload • Drag & Drop • Ctrl+V paste</p>
+</section>
+
+<section class="photoNavigator card">
+  <button id="prevPhoto" disabled>‹ Previous</button>
+  <div class="selectedPhotoBox">
+    <img id="selectedThumb" alt="Selected photo">
+    <div>
+      <b id="selectedName">No photo selected</b>
+      <small id="photoCounter">0 / 0</small>
+    </div>
+  </div>
+  <button id="nextPhoto" disabled>Next ›</button>
+</section>
+
+<section class="mainEditor">
+  <section class="card canvasBox">
+    <div class="topToolBar">
+      <button id="move" class="active">Move</button>
+      <button id="erase">Erase</button>
+      <button id="restore">Restore</button>
+      <button id="brush" class="active">Brush</button>
+      <button id="box">Box Select</button>
+      <button id="undo" disabled>Undo</button>
+      <button id="redo" disabled>Redo</button>
+    </div>
+
+    <div class="miniControls">
+      <label>Brush <span id="bv">35px</span></label>
+      <input id="brushSize" type="range" min="5" max="100" value="35" disabled>
+    </div>
+
+    <canvas id="edit" width="600" height="600"></canvas>
+    <p>Photo select/paste karte hi yahan dikhegi. AI Background Remove side panel me hai.</p>
+  </section>
+
+  <aside class="card sidePanel">
+    <h2>AI & Export</h2>
+
+    <label><input id="removeBgOption" type="checkbox" checked> AI Background Remove ON</label>
+    <small>OFF karoge to photo direct edit hogi.</small>
+    <button id="process" disabled>AI Background Remove / Apply</button>
+
+    <div class="sizeGrid">
+      <div><label>Width</label><input id="outW" type="number" min="50" max="2000" value="400"></div>
+      <div><label>Height</label><input id="outH" type="number" min="50" max="2000" value="400"></div>
+    </div>
+
+    <div class="sizeGrid">
+      <div><label>Min KB</label><input id="minKB" type="number" min="10" max="5000" value="190"></div>
+      <div><label>Max KB</label><input id="maxKB" type="number" min="20" max="5000" value="199"></div>
+    </div>
+
+    <div class="btns">
+      <button id="rl" disabled>↶ Rotate</button>
+      <button id="rr" disabled>↷ Rotate</button>
+      <button id="flip" disabled>⇄ Flip</button>
+      <button id="center" disabled>Center</button>
+    </div>
+
+    <label>Zoom <span id="zv">100%</span></label>
+    <input id="zoom" type="range" min="40" max="260" value="100" disabled>
+
+    <h3>Enhance</h3>
+    <label><input id="enh" type="checkbox" checked> Enhance ON</label>
+
+    <label>Brightness <span id="brv">105%</span></label>
+    <input id="br" type="range" min="75" max="140" value="105" disabled>
+
+    <label>Contrast <span id="cov">110%</span></label>
+    <input id="co" type="range" min="75" max="160" value="110" disabled>
+
+    <label>Saturation <span id="sav">108%</span></label>
+    <input id="sa" type="range" min="60" max="160" value="108" disabled>
+
+    <label>Sharpen <span id="shv">16</span></label>
+    <input id="sh" type="range" min="0" max="55" value="16" disabled>
+
+    <label><input id="shadow" type="checkbox"> Soft shadow</label>
+    <label><input id="gridOn" type="checkbox" checked> Grid show</label>
+
+    <div class="btns">
+      <button id="clear" disabled>Clear Fix</button>
+      <button id="reset" disabled>Reset</button>
+    </div>
+
+    <label>Save file name</label>
+    <input id="fname" value="product-photo">
+    <small>.jpg automatic add hoga</small>
+
+    <button id="download" disabled>Download JPG</button>
+    <p id="status">Photo select karo.</p>
+    <div class="bar"><div id="fill"></div></div>
+    <p id="info"></p>
+  </aside>
+</section>
+
+<section class="previewGrid">
+  <div class="card preview"><h2>Original</h2><img id="orig"></div>
+  <div class="card preview"><h2>Final Preview</h2><canvas id="final" width="400" height="400"></canvas></div>
+</section>
+
+
+<section class="bottomInstagram">
+  <span>Follow on Instagram</span>
+  <a href="https://www.instagram.com/aj__editz_2.0?igsh=MWpsNDJ4eHZiOWFxMg==" target="_blank">@aj__editz_2.0</a>
+</section>
+
+<footer class="footer">
+  <b>Powered by Rider4XR</b>
+  <span>Ajay Saini • WhatsApp: +91 9929562585 • Instagram: @aj__editz_2.0</span>
+</footer>
+
+</main>
+<script type="module" src="script.js"></script>
+</body>
+</html>
